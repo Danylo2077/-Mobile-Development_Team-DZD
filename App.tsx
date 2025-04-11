@@ -1,19 +1,17 @@
 import React from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
+  StyleSheet
 } from 'react-native';
 import { useGetAllPostsQuery } from './src/services/api/api';
+import { store } from './src/store';
+import { Provider } from 'react-redux';
+import News from './src/screens/NewsScreen';
 
 function App(): React.JSX.Element {
-  const { data } = useGetAllPostsQuery();
-  console.log(data);
-
   return (
-    <View style={styles.mainContainer}>
-      <Text>React Native App</Text>
-    </View>
+    <Provider store={store}>
+      <News />
+    </Provider>
   );
 }
 
