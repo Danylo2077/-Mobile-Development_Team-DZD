@@ -1,103 +1,55 @@
-// import { FC } from "react"
-// import { Image, StyleSheet, Text, View } from "react-native"
-// type NewCardProps = {
-//     title: string,
-//     newsImage: string,
-//     author: string | null,
-//     description?: string,
-//
-// }
-// const NewsCard: FC<NewCardProps> = ({ title, newsImage, author, description }) => {
-//     return <View style={styles.mainContainer}>
-//         <Image style={styles.image} source={{uri: newsImage}}/>
-//         <View style={styles.banner}>
-//         <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>{title}</Text>
-//         <Text numberOfLines={2} ellipsizeMode="tail" style={styles.description}>{description}</Text>
-//         <Text style={styles.author}>{author}</Text>
-//         </View>
-//         </View>
-//
-// }
-//
-// const styles = StyleSheet.create({
-//     mainContainer: {
-//         height: 150,
-//         width: '100%',
-//         borderRadius: 20,
-//         borderWidth: 1,
-//         borderColor: 'black',
-//         backgroundColor: 'white',
-//         marginTop: 8,
-//     },
-//     title: {
-//         fontSize: 16,
-//         fontWeight: '600',
-//         color: 'white',
-//     },
-//     author: {
-//         fontSize: 12,
-//         color: 'white',
-//         marginTop: 16,
-//
-//     },
-//     description: {
-//         fontStyle: 'italic',
-//         fontSize: 12,
-//         color: 'white',
-//         marginTop: 16,
-//     },
-//     image: {
-//         width: '100%',
-//         height: '100%',
-//         borderRadius: 20,
-//     },
-//     banner: {
-//         position: 'absolute',
-//         bottom: 0,
-//         left: 0,
-//         right: 0,
-//         top: 0,
-//         backgroundColor: '#00000080',
-//         padding: 16,
-//         borderRadius: 20,
-//
-//     }
-//
-// })
-// export default NewsCard;
 
+import React, { FC } from "react";
+import { Pressable, Image, StyleSheet, Text, View } from "react-native";
 
-
-//V2
-import { FC } from "react"
-import { Image, StyleSheet, Text, View } from "react-native"
-
-type NewCardProps = {
+type NewsCardProps = {
     title: string,
     newsImage: string,
     author: string | null,
-    description?: string,
+    description?: string;
+    onCardPress: () => void;
 }
 
-const NewsCard: FC<NewCardProps> = ({ title, newsImage, author, description }) => {
+const NewsCard: FC<NewsCardProps> = ({
+    title,
+    newsImage,
+    author,
+    description,
+    onCardPress,  // обратите внимание: латинская "C"
+  }) => {
+    const handlePress = () => {
+      console.log("Card pressed!");
+      onCardPress();
+    };
+  
     return (
-      <View style={styles.mainContainer}>
-          {newsImage?.trim() ? (
-            <Image style={styles.image} source={{ uri: newsImage }} />
-          ) : (
-            <Image
-              style={styles.image}
-              source={{ uri: 'https://media.istockphoto.com/id/667756162/uk/%D0%B2%D0%B5%D0%BA%D1%82%D0%BE%D1%80%D0%BD%D1%96-%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%BD%D1%8F/%D1%86%D0%B5%D0%BD%D0%B7%D1%83%D1%80%D0%B0-%D0%BD%D0%BE%D0%B2%D0%B8%D0%BD%D0%B8-%D0%BA%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%86%D1%96%D1%8F-%D0%BA%D1%83%D0%BF%D0%B0-%D1%86%D0%B5%D0%BD%D0%B7%D1%83%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%85-%D0%B3%D0%B0%D0%B7%D0%B5%D1%82-%D0%BD%D0%B0-%D0%BF%D0%BE%D0%B4%D1%80%D1%8F%D0%BF%D0%B0%D0%BD%D0%BE%D0%BC%D1%83-%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BC%D1%83-%D0%BB%D1%96%D1%81%D1%96-3d.jpg?s=1024x1024&w=is&k=20&c=vSSNWqdZlmMybvZ7vfz2E94akfwF1ZT0-47hHLXJhCU=' }}
-            />
-          )}
-          <View style={styles.banner}>
-              <Text style={styles.title}>{title}</Text>
-              <Text numberOfLines={2} ellipsizeMode="tail" style={styles.description}>{description}</Text>
-              <Text style={styles.author}>Author: {author}</Text>
-          </View>
-      </View>
+      <Pressable style={styles.mainContainer} onPress={handlePress}>
+        {newsImage?.trim() ? (
+          <Image style={styles.image} source={{ uri: newsImage }} />
+        ) : (
+          <Image
+            style={styles.image}
+            source={{
+              uri:
+                "https://media.istockphoto.com/id/667756162/uk/vector-breaking-news-background.jpg",
+            }}
+          />
+        )}
+
+        <View pointerEvents="none" style={styles.banner}>
+          <Text style={styles.title}>{title}</Text>
+          <Text
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            style={styles.description}
+          >
+            {description}
+          </Text>
+          <Text style={styles.author}>Author: {author}</Text>
+        </View>
+      </Pressable>
     );
-};
+  };
 
 
 const styles = StyleSheet.create({

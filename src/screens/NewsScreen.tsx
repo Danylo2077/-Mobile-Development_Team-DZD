@@ -1,131 +1,97 @@
-//V1
-// import {useEffect, useState} from 'react';
-// import NewsCard from '../components/NewsCard';
-// import {useGetAllPostsQuery} from '../services/api/api';
-// import {FlatList, StyleSheet, Text, View} from 'react-native';
-// import {NewsItem} from '../services/api/types';
-//
-// const News = () => {
-//   const [offset, setOffset] = useState(0);
-//   const {data, refetch, isLoading} = useGetAllPostsQuery(offset);
-//   const [news, setNews] = useState<NewsItem[]>([]);
-//   console.log(data);
-//   useEffect(() => {
-//     if (offset) {
-//       refetch();
-//     }
-//   }, [offset, refetch]);
-//
-//   useEffect(() => {
-//     if (data) {
-//       if (offset) {
-//         setNews([...news, ...data?.data]);
-//       } else {
-//         setNews(data?.data);
-//       }
-//     }
-//   }, [data?.data]);
-//   return (
-//     <View style={styles.mainContainer}>
-//       <FlatList
-//         style={styles.listContainer}
-//         keyExtractor={item => item.url}
-//         data={news}
-//         renderItem={({item}) => (
-//           <NewsCard
-//             title={item.title}
-//             newsImage={item.image}
-//             description={item.description}
-//             author={item.source}
-//           />
-//         )}
-//         onEndReached={() => {
-//           setOffset(prevValue => prevValue + 25);
-//         }}
-//         onEndReachedThreshold={0.1}
-//       />
-//     </View>
-//   );
-// };
-// const styles = StyleSheet.create({
-//   mainContainer: {flex: 1, paddingHorizontal: 16},
-//   listContainer: {flex: 1},
-// });
-//
-// export default News;
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  FlatList,
+  TextInput,
+  Text,
+  StyleSheet
+} from 'react-native';
 
-//V2
-import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
+
 import NewsCard from '../components/NewsCard';
 import { useGetAllPostsQuery } from '../services/api/api';
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
-import { NewsItem } from '../services/api/types';
+import type { NewsItem } from '../services/api/types';
 
-const News = () => {
+type NewsScreenNavProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'NewsList'
+>;
+
+const NewsScreen: React.FC = () => {
+  const navigation = useNavigation<NewsScreenNavProp>();
+
   const [offset, setOffset] = useState(0);
-  const [searchQuery, setSearchQuery] = useState(''); // Стан для пошукового запиту
-  const { data, refetch, isLoading } = useGetAllPostsQuery({ offset, searchQuery }); // Параметр для API
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data, isLoading } = useGetAllPostsQuery({ offset, searchQuery });
   const [news, setNews] = useState<NewsItem[]>([]);
 
   useEffect(() => {
-    if (offset) {
-      refetch();
-    }
-  }, [offset, refetch]);
-
-  useEffect(() => {
     if (data) {
-      if (offset) {
-        setNews([...news, ...data?.data]);
-      } else {
-        setNews(data?.data);
-      }
+      setNews(prev =>
+        offset === 0 ? data.data : [...prev, ...data.data]
+      );
     }
-  }, [data?.data]);
+  }, [data, offset]);
+
+  const loadMore = () => {
+    if (data?.pagination) {
+      setOffset(prev => prev + data.pagination.limit);
+    }
+  };
 
   return (
     <View style={styles.mainContainer}>
-      {/* Поле для введення запиту для пошуку */}
       <TextInput
         style={styles.searchInput}
         placeholder="Пошук новин..."
         value={searchQuery}
-        onChangeText={setSearchQuery}  // Оновлення пошукового запиту
+        onChangeText={text => {
+          setSearchQuery(text);
+          setOffset(0);
+        }}
       />
+
       <FlatList
-        style={styles.listContainer}
-        keyExtractor={item => item.url}
         data={news}
+        keyExtractor={item => item.url}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={
+          !isLoading ? <Text>Нічого не знайдено</Text> : null
+        }
         renderItem={({ item }) => (
           <NewsCard
             title={item.title}
             newsImage={item.image}
             description={item.description}
             author={item.source}
+            onCardPress={() =>
+              navigation.navigate('NewsDetail', { item })
+            }
           />
         )}
-        onEndReached={() => {
-          setOffset(prevValue => prevValue + 25);
-        }}
-        onEndReachedThreshold={0.1}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, paddingHorizontal: 16 },
-  listContainer: { flex: 1 },
+  mainContainer: {
+    flex: 1,
+    paddingHorizontal: 16
+  },
   searchInput: {
     height: 40,
     borderColor: '#ccc',
     borderWidth: 1,
-    marginBottom: 10,
+    marginVertical: 12,
     paddingHorizontal: 8,
-    borderRadius: 8,
-    marginTop: 20,
-  },
+    borderRadius: 8
+  }
 });
 
-export default News;
+export default NewsScreen;
 

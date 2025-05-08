@@ -1,19 +1,18 @@
-import React from 'react';
-import {
-  StyleSheet
-} from 'react-native';
-import { useGetAllPostsQuery } from './src/services/api/api';
-import { store } from './src/store';
+// App.tsx (в корне проекта)
+import React, { JSX } from 'react';
 import { Provider } from 'react-redux';
-import News from './src/screens/NewsScreen';
+import { store } from './src/store';
+import RootNavigator from './src/navigation';  // <— импортируем, а не дублируем
+import { StyleSheet } from 'react-native';
 
-function App(): React.JSX.Element {
+export function App(): JSX.Element {
   return (
     <Provider store={store}>
-      <News />
+      <RootNavigator />
     </Provider>
   );
 }
+
 
 
 const styles = StyleSheet.create({
