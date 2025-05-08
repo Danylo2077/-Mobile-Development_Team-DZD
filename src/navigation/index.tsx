@@ -16,7 +16,7 @@ export default function RootNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerTitleAlign: 'center' }}>
-        <Stack.Screen name="NewsList" component={NewsList} options={{ title: 'Новити' }} />
+        <Stack.Screen name="NewsList" component={NewsList} options={{ title: 'Новини' }} />
         <Stack.Screen name="NewsDetail" component={NewsDetail} options={{ title: 'Стаття' }} />
       </Stack.Navigator>
     </NavigationContainer>
