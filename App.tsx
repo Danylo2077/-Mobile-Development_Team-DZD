@@ -1,28 +1,26 @@
-import React from 'react';
-import {
-  StyleSheet
-} from 'react-native';
-import { useGetAllPostsQuery } from './src/services/api/api';
-import { store } from './src/store';
+import React, { JSX } from 'react';
 import { Provider } from 'react-redux';
-import News from './src/screens/NewsScreen';
+import { store } from './src/store';
+import RootNavigator from './src/navigation';
+import { StyleSheet } from 'react-native';
 
-function App(): React.JSX.Element {
-  return (
-    <Provider store={store}>
-      <News />
-    </Provider>
-  );
+export function App(): JSX.Element {
+	return (
+		<Provider store={store}>
+			<RootNavigator />
+		</Provider>
+	);
 }
 
 
+
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: 'yellow',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+	mainContainer: {
+		flex: 1,
+		backgroundColor: 'yellow',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });
 
 export default App;

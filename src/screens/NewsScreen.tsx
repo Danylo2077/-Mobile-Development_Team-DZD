@@ -1,131 +1,183 @@
-//V1
-// import {useEffect, useState} from 'react';
-// import NewsCard from '../components/NewsCard';
-// import {useGetAllPostsQuery} from '../services/api/api';
-// import {FlatList, StyleSheet, Text, View} from 'react-native';
-// import {NewsItem} from '../services/api/types';
-//
-// const News = () => {
-//   const [offset, setOffset] = useState(0);
-//   const {data, refetch, isLoading} = useGetAllPostsQuery(offset);
-//   const [news, setNews] = useState<NewsItem[]>([]);
-//   console.log(data);
-//   useEffect(() => {
-//     if (offset) {
-//       refetch();
-//     }
-//   }, [offset, refetch]);
-//
-//   useEffect(() => {
-//     if (data) {
-//       if (offset) {
-//         setNews([...news, ...data?.data]);
-//       } else {
-//         setNews(data?.data);
-//       }
-//     }
-//   }, [data?.data]);
-//   return (
-//     <View style={styles.mainContainer}>
-//       <FlatList
-//         style={styles.listContainer}
-//         keyExtractor={item => item.url}
-//         data={news}
-//         renderItem={({item}) => (
-//           <NewsCard
-//             title={item.title}
-//             newsImage={item.image}
-//             description={item.description}
-//             author={item.source}
-//           />
-//         )}
-//         onEndReached={() => {
-//           setOffset(prevValue => prevValue + 25);
-//         }}
-//         onEndReachedThreshold={0.1}
-//       />
-//     </View>
-//   );
-// };
-// const styles = StyleSheet.create({
-//   mainContainer: {flex: 1, paddingHorizontal: 16},
-//   listContainer: {flex: 1},
-// });
-//
-// export default News;
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  FlatList,
+  TextInput,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
 
-//V2
-import { useEffect, useState } from 'react';
 import NewsCard from '../components/NewsCard';
 import { useGetAllPostsQuery } from '../services/api/api';
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
-import { NewsItem } from '../services/api/types';
+import type { NewsItem } from '../services/api/types';
 
-const News = () => {
+type NewsScreenNavProp = NativeStackNavigationProp<RootStackParamList, 'NewsList'>;
+
+type CategoryOption = {
+  label: string;
+  value: string;
+};
+
+const categories: CategoryOption[] = [
+  { label: 'All', value: '' },
+  { label: 'General', value: 'general' },
+  { label: 'Business', value: 'business' },
+  { label: 'Entertainment', value: 'entertainment' },
+  { label: 'Health', value: 'health' },
+  { label: 'Science', value: 'science' },
+  { label: 'Sports', value: 'sports' },
+  { label: 'Technology', value: 'technology' },
+];
+
+const NewsScreen: React.FC = () => {
+  const navigation = useNavigation<NewsScreenNavProp>();
   const [offset, setOffset] = useState(0);
-  const [searchQuery, setSearchQuery] = useState(''); // Стан для пошукового запиту
-  const { data, refetch, isLoading } = useGetAllPostsQuery({ offset, searchQuery }); // Параметр для API
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+
+  const { data, isLoading } = useGetAllPostsQuery({
+    offset,
+    searchQuery,
+    category: selectedCategory,
+  });
+
   const [news, setNews] = useState<NewsItem[]>([]);
 
   useEffect(() => {
-    if (offset) {
-      refetch();
-    }
-  }, [offset, refetch]);
-
-  useEffect(() => {
+    // on new data, reset or append
     if (data) {
-      if (offset) {
-        setNews([...news, ...data?.data]);
-      } else {
-        setNews(data?.data);
-      }
+      setNews(prev =>
+        offset === 0 ? data.data : [...prev, ...data.data]
+      );
     }
-  }, [data?.data]);
+  }, [data, offset]);
+
+  // load more when list ends
+  const loadMore = () => {
+    if (data?.pagination) {
+      setOffset(prev => prev + data.pagination.limit);
+    }
+  };
 
   return (
     <View style={styles.mainContainer}>
-      {/* Поле для введення запиту для пошуку */}
+      {/* Search input */}
       <TextInput
         style={styles.searchInput}
         placeholder="Пошук новин..."
         value={searchQuery}
-        onChangeText={setSearchQuery}  // Оновлення пошукового запиту
+        onChangeText={text => {
+          setSearchQuery(text);
+          setOffset(0);
+        }}
       />
+
+      {/* Categories scroll */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesContainer}
+      >
+        {categories.map(({ label, value }) => (
+          <TouchableOpacity
+            key={value || 'all'}
+            style={[
+              styles.categoryButton,
+              selectedCategory === value && styles.categoryButtonActive,
+            ]}
+            onPress={() => {
+              setSelectedCategory(value);
+              setOffset(0);
+            }}
+          >
+            <Text
+              style={
+                selectedCategory === value
+                  ? styles.categoryTextActive
+                  : styles.categoryText
+              }
+            >
+              {label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* News list */}
       <FlatList
-        style={styles.listContainer}
-        keyExtractor={item => item.url}
         data={news}
+        keyExtractor={item => item.url}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={
+          !isLoading ? <Text>Нічого не знайдено</Text> : null
+        }
         renderItem={({ item }) => (
           <NewsCard
             title={item.title}
             newsImage={item.image}
             description={item.description}
             author={item.source}
+            onCardPress={() =>
+              navigation.navigate('NewsDetail', { item })
+            }
           />
         )}
-        onEndReached={() => {
-          setOffset(prevValue => prevValue + 25);
-        }}
-        onEndReachedThreshold={0.1}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, paddingHorizontal: 16 },
-  listContainer: { flex: 1 },
+  mainContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+  },
   searchInput: {
     height: 40,
     borderColor: '#ccc',
     borderWidth: 1,
-    marginBottom: 10,
+    marginVertical: 12,
     paddingHorizontal: 8,
     borderRadius: 8,
-    marginTop: 20,
+  },
+  categoriesContainer: {
+    marginBottom: 10,
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+  },
+  categoryButton: {
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+    marginRight: 10,
+    backgroundColor: 'transparent',
+  },
+  categoryButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  categoryText: {
+    fontSize: 13,
+    lineHeight: 16,
+    color: '#007AFF',
+    textAlign: 'center',
+  },
+  categoryTextActive: {
+    fontSize: 13,
+    lineHeight: 16,
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 
-export default News;
-
+export default NewsScreen;
