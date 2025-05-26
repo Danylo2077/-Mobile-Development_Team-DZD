@@ -7,7 +7,7 @@ export const mediaStackApi = createApi({
   endpoints: builder => ({
     getAllPosts: builder.query<NewsApiResponse, { offset: number; searchQuery: string; category: string }>( {
       query: ({ offset, searchQuery, category }) => {
-        let params = `access_key=a4362c296fcbc98230fa5c5441df6e3c&offset=${offset}&keywords=${searchQuery}`;
+        let params = `access_key=f16ed1cb8a58f9654bb11522e880f345&offset=${offset}&keywords=${searchQuery}`;
         if (category) params += `&categories=${category}`;
         return `/news?${params}`;
       },

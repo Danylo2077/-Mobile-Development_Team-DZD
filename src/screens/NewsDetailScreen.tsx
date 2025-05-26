@@ -1,4 +1,5 @@
 import React from 'react';
+import { decode } from 'html-entities';
 import {
   ScrollView,
   View,
@@ -34,13 +35,14 @@ export default function NewsDetailScreen({ route }: Props) {
         <Text style={styles.meta}>
           {item.source} • {new Date(item.published_at).toLocaleString()}
         </Text>
-        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.description}>{decode(item.description)}</Text>
+
 
         <Pressable
           style={styles.button}
           onPress={() => Linking.openURL(item.url)}
         >
-          <Text style={styles.buttonText}>Читать полностью</Text>
+          <Text style={styles.buttonText}>Переглянути джерело</Text>
         </Pressable>
       </View>
     </ScrollView>

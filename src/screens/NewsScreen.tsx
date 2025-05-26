@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { decode } from 'html-entities';
 import {
   View,
   FlatList,
@@ -111,7 +112,7 @@ const NewsScreen: React.FC = () => {
       {/* News list */}
       <FlatList
         data={news}
-        keyExtractor={item => item.url}
+        keyExtractor={item => item.url + item.published_at}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListEmptyComponent={
@@ -121,7 +122,7 @@ const NewsScreen: React.FC = () => {
           <NewsCard
             title={item.title}
             newsImage={item.image}
-            description={item.description}
+            description={decode(item.description)}
             author={item.source}
             onCardPress={() =>
               navigation.navigate('NewsDetail', { item })
