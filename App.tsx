@@ -1,21 +1,17 @@
-import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useGetAllPostsQuery } from './src/services/api/api';
+import React, { JSX } from 'react';
+import { Provider } from 'react-redux';
+import { store } from './src/store';
+import RootNavigator from './src/navigation';
+import { StyleSheet } from 'react-native';
 
-function App(): React.JSX.Element {
-  const { data } = useGetAllPostsQuery();
-  console.log(data);
-
+export function App(): JSX.Element {
   return (
-    <View style={styles.mainContainer}>
-      <Text>React Native App</Text>
-    </View>
+    <Provider store={store}>
+      <RootNavigator />
+    </Provider>
   );
 }
+
 
 
 const styles = StyleSheet.create({
